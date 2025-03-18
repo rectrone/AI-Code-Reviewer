@@ -35,9 +35,9 @@ function App() {
   return (
     <>
     
-    <main className="container">
+    <head className="container">
       
-      {/* Left Section: Code Editor and Review Button */}
+      
       <section className="left">
         <Editor
           value={code}
@@ -51,11 +51,11 @@ function App() {
        
       </section>
 
-      {/* Right Section: Review Result Display */}
+      
       <section className="right">
         <Markdown rehypePlugins={[rehypeHighlight]}>{review}</Markdown>
       </section>
-    </main>
+    </head>
     <button onClick={reviewCode} className="review-button">
           Review
         </button>
@@ -63,7 +63,7 @@ function App() {
   );
 }
 
-// Inline style for Editor
+
 const editorStyle = {
   fontFamily: '"Fira code", "Fira Mono", monospace',
   fontSize: 16,
