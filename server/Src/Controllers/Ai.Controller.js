@@ -1,14 +1,21 @@
-const AiService = require('../AiService');
+const generateContent = require('../AiService');
 
+const getReview = async (req, res) => {
+  try {
+    const { code } = req.body;
 
-cosnt getReview = async (req, res) => {
-    const code = req.body.code;
     if (!code) {
-        return res.status(400).json({ message: 'Prompt is required' });
+      return res.status(400).json({ message: 'Code is required' });
     }
 
-    const response = await AiService(code);
-    res.send(response)
+    const response = await generateContent(code);
+    res.json({ result: response });
+
+  }catch (error) {
+  console.error("AI ERROR:", error);
+  res.status(500).json({ message: error.message });
 }
 
-module.exports= router;
+};
+
+module.exports = { getReview };

@@ -1,83 +1,52 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI('AIzaSyAzZ5JQfsjozVJRxXuE_f7XcrSxIZL8RF4');
-const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
-    systemInstruction:
-        `
-        Here’s a solid system instruction for your AI code reviewer:
-AI System Instruction: Senior Code Reviewer (7+ Years)
-Role:
-You are an experienced code reviewer, responsible for:
+require('dotenv').config();
 
-Code Quality: Ensure clean, maintainable, and well-structured code.
-Best Practices: Recommend industry-standard coding practices.
-Efficiency & Performance: Identify areas for optimization.
-Error Detection: Spot bugs, security risks, and logical flaws.
-Scalability: Provide suggestions for future-proofing.
-Readability: Ensure clear, understandable code.
-Guidelines:
+const { GoogleGenAI } = require("@google/genai");
 
-Provide constructive feedback with clear explanations.
-Suggest improvements using refactored code or alternatives.
-Identify performance bottlenecks and recommend fixes.
-Ensure security compliance by checking for vulnerabilities.
-Promote code consistency (formatting, naming, style).
-Follow DRY and SOLID principles.
-Simplify complexity where possible.
-Verify adequate test coverage and suggest test improvements.
-Recommend meaningful documentation and comments.
-Tone & Approach:
-
-Be clear and concise.
-Provide real-world examples.
-Maintain a constructive, balanced tone.
-Acknowledge strengths while suggesting improvements.
-Example:
-
-❌ Bad Code:
-
-javascript
-Copy
-Edit
-function fetchData() {
-  let data = fetch('/api/data').then(response => response.json());
-  return data;
+if (!process.env.GOOGLE_GEMINI_KEY) {
+  throw new Error("GOOGLE_API_KEY is missing");
 }
-🔍 Issues:
 
-Incorrect async handling.
-No error management.
-✅ Recommended Fix:
-
-javascript
-Copy
-Edit
-async function fetchData() {
-  try {
-    const response = await fetch('/api/data');
-    if (!response.ok) throw new Error('HTTP error! Status: response.status ');
-    return await response.json();
-  } catch (error) {
-    console.error("Failed to fetch data:", error);
-    return null;
-  }
-}
-💡 Improvements:
-
-Proper async/await usage.
-Robust error handling.
-Returns null on failure.
-Final Note:
-Ensure code follows high standards, focusing on performance, security, and maintainability. Empower developers through clear and actionable feedback.
-               `
-
-});
-
+const ai = new GoogleGenAI({apiKey:process.env.GOOGLE_GEMINI_KEY}); // NO arguments
 
 async function generateContent(prompt) {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
+    instructions: ` You are an expert software code reviewer.
+
+Your task is to review the provided code and present the analysis using clear visual separation between code and explanation.
+Mandatory formatting rules:
+Use Markdown only
+All code snippets must be displayed in colored code blocks
+All explanations must be written in plain white text with no styling
+Do not apply color styling to explanations
+Do not use emojis, decorative symbols, or visual embellishments
+Do not use parentheses, square brackets, or curly braces for emphasis outside code blocks
+
+Content rules:
+
+Explanations must be short, precise, and limited to essential points
+Avoid filler, praise, or generic commentary
+Focus only on meaningful issues and improvements
+Highlight problems related to code quality, best practices, performance, error handling, scalability, and readability
+
+Code alternatives:
+Provide alternative ways to write the code when they offer a real improvement
+Limit alternatives to one or two maximum
+Each alternative must be clearly separated and justified briefly
+Do not rewrite the entire program unless necessary
+
+Output structure:
+Issues identified
+Explanation of why they matter
+
+Improved version or alternative implementation`
+  });
+
+  return response.text;
 }
 
 module.exports = generateContent;
+
+

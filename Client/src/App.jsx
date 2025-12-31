@@ -20,59 +20,48 @@ function App() {
   }, []);
 
   // Review code using AI API
-  const reviewCode = async () => {
-    try {
-      const { data } = await axios.post("http://localhost:3000/ai/get-review", {
-        code,
-      });
-      setReview(data);
-    } catch (error) {
-      console.error("Error fetching code review:", error);
-      setReview("Failed to get review. Please try again.");
-    }
-  };
+ const reviewCode = async () => {
+  try {
+    const response = await axios.post(
+      "http://localhost:4000/ai/get-review",
+      { code }
+    );
+
+    setReview(response.data.result);
+  } catch (error) {
+    console.error("Error fetching code review:", error.response?.data || error.message);
+    setReview("Failed to get review. Please try again.");
+  }
+};
+
 
   return (
-    <>
     
-    <head className="container">
-      
-      
-      <section className="left">
-        <Editor
-          value={code}
-          onValueChange={setCode}
-          highlight={(code) =>
-            prism.highlight(code, prism.languages.javascript, "javascript")
-          }
-          padding={10}
-          style={editorStyle}
-        />
-       
-      </section>
+    <>
+  <div className="container">
+    <section className="left">
+      <Editor
+        value={code}
+        onValueChange={setCode}
+        highlight={(code) =>
+          prism.highlight(code, prism.languages.javascript, "javascript")
+        }
+        padding={10}
+        className="code-editor"
+      />
+    </section>
 
-      
-      <section className="right">
-        <Markdown rehypePlugins={[rehypeHighlight]}>{review}</Markdown>
-      </section>
-    </head>
-    <button onClick={reviewCode} className="review-button">
-          Review
-        </button>
-    </>
-  );
-}
+    <section className="right">
+      <Markdown rehypePlugins={[rehypeHighlight]}>
+        {review}
+      </Markdown>
+    </section>
+  </div>
 
-
-const editorStyle = {
-  fontFamily: '"Fira code", "Fira Mono", monospace',
-  fontSize: 16,
-  border: "1px solid #ddd",
-  borderRadius: "5px",
-  height: "100%",
-  width: "100%",
-  backgroundColor: "#1e1e1e",
-  color: "#ffffff",
-};
+  <button onClick={reviewCode} className="review-button">
+    Review
+  </button>
+</>
+  )}
 
 export default App;
